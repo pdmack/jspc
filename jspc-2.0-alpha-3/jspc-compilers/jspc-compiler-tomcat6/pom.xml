@@ -40,14 +40,29 @@
             <groupId>org.apache.tomcat</groupId>
             <artifactId>jasper</artifactId>
             <version>${tomcatVersion}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.eclipse.jdt.core.compiler</groupId>
+                <artifactId>ecj</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>jasper-jdt</artifactId>
             <version>${tomcatVersion}</version>
+            <!-- tomcat6-lib package not generating JPP POMS for jasper-jdt -->
+            <scope>system</scope>
+            <systemPath>/usr/share/java/tomcat6/jasper-jdt.jar</systemPath>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.codehaus.gmaven.runtime</groupId>
+            <artifactId>gmaven-runtime</artifactId>
+            <version>1.8</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>jasper-el</artifactId>

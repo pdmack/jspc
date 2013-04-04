@@ -33,7 +33,9 @@
     <packaging>pom</packaging>
     
     <modules>
+<!--
         <module>jspc-compiler-tomcat5</module>
+-->
         <module>jspc-compiler-tomcat6</module>
     </modules>
     
@@ -48,11 +50,19 @@
         <plugins>
             <plugin>
                 <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-maven-plugin</artifactId>
+                <artifactId>plexus-component-metadata</artifactId>
+                <version>3.0</version>
+                <configuration>
+                  <descriptors>
+                    <descriptor>target/classes/META-INF/plexus/components.xml</descriptor>
+                  </descriptors>
+                </configuration>
                 <executions>
                     <execution>
+                        <id>create-component-descriptor</id>
+                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>descriptor</goal>
+                            <goal>generate-metadata</goal>
                         </goals>
                     </execution>
                 </executions>
