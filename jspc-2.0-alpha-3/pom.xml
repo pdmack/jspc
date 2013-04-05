@@ -216,7 +216,7 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>2.5</version>
                     <configuration>
-                        <source>1.4</source>
+                        <source>1.7</source>
                     </configuration>
                 </plugin>
                 
