@@ -12,15 +12,27 @@ Url:           http://mojo.codehaus.org/jspc/
 # svn export https://svn.codehaus.org/mojo/tags/jspc-2.0-alpha-3 jspc
 # tar czf jspc-2.0-alpha-3-src-svn.tar.gz jspc
 Source0:       %{name}-%{namedversion}-src-svn.tar.gz
+Source1:       jspc-mp-plugin.xml
 
 BuildRequires: java-devel
 BuildRequires: jpackage-utils
 BuildRequires: maven
 BuildRequires: gmaven
 BuildRequires: ant
+BuildRequires: maven-plugin-cobertura
+BuildRequires: tomcat6
+BuildRequires: maven-remote-resources-plugin
+BuildRequires: maven-plugin-plugin
+BuildRequires: maven-compiler-plugin
+BuildRequires: maven-release-plugin
+BuildRequires: maven-surefire-plugin
+BuildRequires: maven-install-plugin
+BuildRequires: maven-javadoc-plugin
+BuildRequires: maven-enforcer-plugin
 
 Requires:      java
 Requires:      jpackage-utils
+Requires:      gmaven
 BuildArch:     noarch
 
 %description
@@ -33,22 +45,14 @@ Version 2 of the JSP compilation support includes a pluggable JSP compiler
 implementation, which currently allows different versions of the Tomcat Jasper
 compiler to be used as needed.
 
-%package compiler-api
-Group:         Development/Libraries
-Summary:       JSPC Compiler API
-Requires:      jpackage-utils
-Requires:      %{name} = %{version}-%{release}
-
-%description compiler-api
-%{summary}.
-
-%package compilers
+%package compiler-tomcat6
 Group:         Development/Libraries
 Summary:       JSPC Compiler for Tomcat6
 Requires:      jpackage-utils
+Requires:      tomcat6
 Requires:      %{name} = %{version}-%{release}
 
-%description compilers
+%description compiler-tomcat6
 %{summary}.
 
 %package -n jspc-maven-plugin
@@ -56,8 +60,7 @@ Group:         Development/Libraries
 Summary:       JSPC Maven Plugin
 Requires:      jpackage-utils
 Requires:      %{name} = %{version}-%{release}
-Requires:      %{name}-compiler-api = %{version}-%{release}
-Requires:      %{name}-compilers = %{version}-%{release}
+Requires:      %{name}-compiler-tomcat6 = %{version}-%{release}
 
 %description -n jspc-maven-plugin
 %{summary}.
@@ -160,6 +163,14 @@ mvn-rpmbuild \
   -Dgmaven.runtime=1.8 \
   install javadoc:aggregate
 
+# http://jira.codehaus.org/browse/GMAVEN-68
+# gmaven-runtime 1.8 doesn't generate plugin descriptor
+# files from javadoc, so we have to load in an existing
+# one derived from mvn and g-r 1.6
+mkdir -p META-INF/maven/
+cp %{SOURCE1} META-INF/maven/plugin.xml
+jar uf  %{name}-maven-plugin/target/%{name}-maven-plugin-2.0-alpha-3.jar META-INF/maven/plugin.xml
+
 %install
 
 mkdir -p %{buildroot}%{_mavenpomdir}
@@ -168,11 +179,41 @@ install -pm 644 pom.xml %{buildroot}%{_mavenpomdir}/JPP.%{name}-%{name}.pom
 
 mkdir -p %{buildroot}%{_javadir}/%{name}
 
+install -m 644 %{name}-compiler-api/target/%{name}-compiler-api-%{namedversion}.jar %{buildroot}%{_javadir}/%{name}/%{name}-compiler-api.jar
+install -pm 644 %{name}-compiler-api/pom.xml %{buildroot}%{_mavenpomdir}/JPP.%{name}-%{name}-compiler-api.pom
+%add_maven_depmap JPP.%{name}-%{name}-compiler-api.pom %{name}/%{name}-compiler-api.jar
+
+install -m 644 %{name}-compilers/%{name}-compiler-tomcat6/target/%{name}-compiler-tomcat6-%{namedversion}.jar \
+  %{buildroot}%{_javadir}/%{name}/%{name}-compiler-tomcat6.jar
+install -pm 644 %{name}-compilers/%{name}-compiler-tomcat6/pom.xml %{buildroot}%{_mavenpomdir}/JPP.%{name}-%{name}-compiler-tomcat6.pom
+%add_maven_depmap JPP.%{name}-%{name}-compiler-tomcat6.pom %{name}/%{name}-compiler-tomcat6.jar
+
+install -m 644 %{name}-maven-plugin/target/%{name}-maven-plugin-%{namedversion}.jar %{buildroot}%{_javadir}/%{name}/%{name}-maven-plugin.jar
+install -pm 644 %{name}-maven-plugin/pom.xml %{buildroot}%{_mavenpomdir}/JPP.%{name}-%{name}-maven-plugin.pom
+%add_maven_depmap JPP.%{name}-%{name}-maven-plugin.pom %{name}/%{name}-maven-plugin.jar
+
+mkdir -p %{buildroot}%{_javadocdir}/%{name}
+cp -pr target/site/apidocs/* %{buildroot}%{_javadocdir}/%{name}
+
 %files
 %dir %{_javadir}/%{name}
-%{_javadir}/%{name}/%{name}-api.jar
+%{_javadir}/%{name}/%{name}-compiler-api.jar
 %{_mavenpomdir}/JPP.%{name}-%{name}.pom
-%{_mavenpomdir}/JPP.%{name}-%{name}-api.pom
+%{_mavenpomdir}/JPP.%{name}-%{name}-compiler-api.pom
+%{_mavendepmapfragdir}/%{name}
+%doc LICENSE.txt
+
+%files compiler-tomcat6
+%dir %{_javadir}/%{name}
+%{_javadir}/%{name}/%{name}-compiler-tomcat6.jar
+%{_mavenpomdir}/JPP.%{name}-%{name}-compiler-tomcat6.pom
+%{_mavendepmapfragdir}/%{name}
+%doc LICENSE.txt
+
+%files maven-plugin
+%dir %{_javadir}/%{name}
+%{_javadir}/%{name}/%{name}-maven-plugin.jar
+%{_mavenpomdir}/JPP.%{name}-%{name}-maven-plugin.pom
 %{_mavendepmapfragdir}/%{name}
 %doc LICENSE.txt
 
