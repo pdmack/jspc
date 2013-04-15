@@ -17,22 +17,27 @@ Source1:       jspc-mp-plugin.xml
 BuildRequires: java-devel
 BuildRequires: jpackage-utils
 BuildRequires: maven
-BuildRequires: gmaven
+
+BuildRequires: apache-resource-bundles
 BuildRequires: ant
-BuildRequires: maven-plugin-cobertura
-BuildRequires: tomcat6
-BuildRequires: maven-remote-resources-plugin
-BuildRequires: maven-plugin-plugin
+BuildRequires: fusesource-pom
+BuildRequires: gmaven
+BuildRequires: plexus-container-default
+BuildRequires: tomcat
+
 BuildRequires: maven-compiler-plugin
-BuildRequires: maven-release-plugin
-BuildRequires: maven-surefire-plugin
-BuildRequires: maven-install-plugin
-BuildRequires: maven-javadoc-plugin
 BuildRequires: maven-enforcer-plugin
+BuildRequires: maven-install-plugin
+BuildRequires: maven-invoker-plugin
+BuildRequires: maven-javadoc-plugin
+BuildRequires: maven-plugin-cobertura
+BuildRequires: maven-plugin-plugin
+BuildRequires: maven-release-plugin
+BuildRequires: maven-remote-resources-plugin
+BuildRequires: maven-surefire-plugin
 
 Requires:      java
 Requires:      jpackage-utils
-Requires:      gmaven
 BuildArch:     noarch
 
 %description
@@ -49,7 +54,7 @@ compiler to be used as needed.
 Group:         Development/Libraries
 Summary:       JSPC Compiler for Tomcat6
 Requires:      jpackage-utils
-Requires:      tomcat6
+Requires:      tomcat
 Requires:      %{name} = %{version}-%{release}
 
 %description compiler-tomcat6
@@ -98,8 +103,9 @@ sed -i 's|<artifactId>plexus-maven-plugin</artifactId>|<artifactId>plexus-compon
 # dump wagon-webdav
 %pom_xpath_remove "pom:build/pom:extensions" pom.xml
 
-# fix up tomcat6 pom
-%pom_add_dep org.codehaus.gmaven.runtime:gmaven-runtime:1.8 jspc-compilers/jspc-compiler-tomcat6/pom.xml
+# fix up tomcat6 pom to point to TC7 refs
+sed -i 's|Tomcat 6|Tomcat 7|' jspc-compilers/jspc-compiler-tomcat6/pom.xml
+%pom_add_dep org.codehaus.gmaven.runtime:gmaven-runtime-1.8:1.4 jspc-compilers/jspc-compiler-tomcat6/pom.xml
 %pom_xpath_inject "pom:dependencies/pom:dependency[pom:artifactId[./text()='jasper']]" "
             <exclusions>
               <exclusion>
@@ -108,11 +114,19 @@ sed -i 's|<artifactId>plexus-maven-plugin</artifactId>|<artifactId>plexus-compon
               </exclusion>
             </exclusions>
 " jspc-compilers/jspc-compiler-tomcat6/pom.xml
+# tomcat-lib package not generating JPP POMS for jasper-jdt
 %pom_xpath_inject "pom:dependencies/pom:dependency[pom:artifactId[./text()='jasper-jdt']]" "
-            <!-- tomcat6-lib package not generating JPP POMS for jasper-jdt -->
             <scope>system</scope>
-            <systemPath>/usr/share/java/tomcat6/jasper-jdt.jar</systemPath>
+            <systemPath>\${tomcat.jasperjdt.local}</systemPath>
 " jspc-compilers/jspc-compiler-tomcat6/pom.xml
+sed -i 's|<artifactId>jasper</artifactId>|<artifactId>tomcat-jasper</artifactId>|' jspc-compilers/jspc-compiler-tomcat6/pom.xml
+sed -i 's|<artifactId>jasper-el</artifactId>|<artifactId>tomcat-jasper-el</artifactId>|' jspc-compilers/jspc-compiler-tomcat6/pom.xml
+sed -i 's|<artifactId>jasper-jdt</artifactId>|<artifactId>tomcat-jasper-jdt</artifactId>|' jspc-compilers/jspc-compiler-tomcat6/pom.xml
+%pom_remove_dep org.apache.tomcat:juli jspc-compilers/jspc-compiler-tomcat6/pom.xml
+%pom_remove_dep org.apache.tomcat:servlet-api jspc-compilers/jspc-compiler-tomcat6/pom.xml
+%pom_remove_dep org.apache.tomcat:jsp-api jspc-compilers/jspc-compiler-tomcat6/pom.xml
+%pom_remove_dep org.apache.tomcat:el-api jspc-compilers/jspc-compiler-tomcat6/pom.xml
+%pom_remove_dep org.apache.tomcat:annotations-api jspc-compilers/jspc-compiler-tomcat6/pom.xml
 
 # drop plexus-maven-plugin and add plexus-component-metadata and appropriate config
 %pom_remove_plugin org.codehaus.plexus:plexus-maven-plugin jspc-compilers/pom.xml
@@ -161,6 +175,7 @@ sed -i 's|<artifactId>plexus-maven-plugin</artifactId>|<artifactId>plexus-compon
 
 mvn-rpmbuild \
   -Dgmaven.runtime=1.8 \
+  -Dtomcat.jasperjdt.local=/usr/share/java/tomcat/jasper-jdt.jar \
   install javadoc:aggregate
 
 # http://jira.codehaus.org/browse/GMAVEN-68
