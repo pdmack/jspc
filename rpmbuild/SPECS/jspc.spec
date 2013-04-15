@@ -41,14 +41,14 @@ Requires:      jpackage-utils
 BuildArch:     noarch
 
 %description
-The Codehaus is a collaborative environment for building open source projects
-with a strong emphasis on modern languages, focussed on quality components that
-meet real world needs.
+The Codehaus is a collaborative environment for building open source
+projects with a strong emphasis on modern languages, focused on
+quality components that meet real world needs.
 
-Provides support to precompile your JSPs and have them included into your WAR file.
-Version 2 of the JSP compilation support includes a pluggable JSP compiler
-implementation, which currently allows different versions of the Tomcat Jasper
-compiler to be used as needed.
+Provides support to precompile your JSPs and have them included into
+your WAR file. Version 2 of the JSP compilation support includes a
+pluggable JSP compiler implementation, which currently allows different
+versions of the Tomcat Jasper compiler to be used as needed.
 
 %package compiler-tomcat6
 Group:         Development/Libraries
