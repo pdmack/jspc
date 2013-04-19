@@ -1,0 +1,636 @@
+<plugin>
+  <description>Support to pre-compile your JSPs for your web applications.</description>
+  <groupId>org.codehaus.mojo.jspc</groupId>
+  <artifactId>jspc-maven-plugin</artifactId>
+  <version>2.0-alpha-3</version>
+  <goalPrefix>jspc</goalPrefix>
+  <isolatedRealm>false</isolatedRealm>
+  <inheritedByDefault>true</inheritedByDefault>
+  <mojos>
+    <mojo>
+      <goal>compile</goal>
+      <description>Compile JSPs.</description>
+      <requiresDependencyResolution>compile</requiresDependencyResolution>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <phase>process-classes</phase>
+      <implementation>org.codehaus.mojo.jspc.CompileMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>classpathElements</name>
+          <type>java.util.List</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description>Project classpath.</description>
+        </parameter>
+        <parameter>
+          <name>compile</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Sets if you want to compile the JSP classes.</description>
+        </parameter>
+        <parameter>
+          <name>filtering</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Provides filtering of the generated web.xml text.</description>
+        </parameter>
+        <parameter>
+          <name>includeInProject</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Set this to false if you don&apos;t want to include the compiled JSPs
+in your web.xml nor add the generated sources to your project&apos;s
+source roots.</description>
+        </parameter>
+        <parameter>
+          <name>injectString</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The string to look for in the web.xml to replace with the web fragment
+contents
+
+If not defined, fragment will be appended before the &amp;lt;/webapp&amp;gt; tag
+which is fine for servlet 2.4 and greater. If using this parameter its
+recommanded to use Strings such as
+&amp;lt;!-- [INSERT FRAGMENT HERE] --&amp;gt;
+
+Be aware the &amp;lt; and &amp;gt; are for your pom verbatim.</description>
+        </parameter>
+        <parameter>
+          <name>inputWebXml</name>
+          <type>java.io.File</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The path and location of the original web.xml file.</description>
+        </parameter>
+        <parameter>
+          <name>javaEncoding</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Character encoding.</description>
+        </parameter>
+        <parameter>
+          <name>listErrors</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>List Errors option for JcpC.</description>
+        </parameter>
+        <parameter>
+          <name>outputWebXml</name>
+          <type>java.io.File</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The final path and file name of the web.xml.</description>
+        </parameter>
+        <parameter>
+          <name>packageName</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The package in which the jsp files will be contained.</description>
+        </parameter>
+        <parameter>
+          <name>project</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>showSuccess</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Show Success option for JcpC.</description>
+        </parameter>
+        <parameter>
+          <name>smapDumped</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Set Smap Dumped option for JcpC.</description>
+        </parameter>
+        <parameter>
+          <name>smapSupressed</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Set Smap Supressed option for JcpC.</description>
+        </parameter>
+        <parameter>
+          <name>source</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Provide source compatibility with specified release.</description>
+        </parameter>
+        <parameter>
+          <name>sources</name>
+          <type>org.apache.maven.shared.model.fileset.FileSet</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The sources of the webapp. Default is &lt;tt&gt;${basedir}/src/main/webapp&lt;/tt&gt;.</description>
+        </parameter>
+        <parameter>
+          <name>target</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Generate class files for specific VM version.</description>
+        </parameter>
+        <parameter>
+          <name>trimSpaces</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Removes the spaces from the generated JSP files.</description>
+        </parameter>
+        <parameter>
+          <name>validateXml</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Validate XML option for JcpC.</description>
+        </parameter>
+        <parameter>
+          <name>verbose</name>
+          <type>int</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Verbose level option for JcpC.</description>
+        </parameter>
+        <parameter>
+          <name>webFragmentFile</name>
+          <type>java.io.File</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The path and location to the web fragment file.</description>
+        </parameter>
+        <parameter>
+          <name>workingDirectory</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The working directory to create the generated java source files.</description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <inputWebXml implementation="java.io.File">${basedir}/src/main/webapp/WEB-INF/web.xml</inputWebXml>
+        <filtering implementation="boolean" default-value="true"/>
+        <workingDirectory implementation="java.lang.String">${project.build.directory}/jsp-source</workingDirectory>
+        <webFragmentFile implementation="java.io.File">${project.build.directory}/web-fragment.xml</webFragmentFile>
+        <showSuccess implementation="boolean" default-value="true"/>
+        <listErrors implementation="boolean" default-value="true"/>
+        <compile implementation="boolean" default-value="true"/>
+        <packageName implementation="java.lang.String" default-value="jsp"/>
+        <classpathElements implementation="java.util.List">${project.compileClasspathElements}</classpathElements>
+        <smapDumped implementation="boolean" default-value="false"/>
+        <verbose implementation="int" default-value="0"/>
+        <trimSpaces implementation="boolean" default-value="true"/>
+        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
+        <smapSupressed implementation="boolean" default-value="false"/>
+        <includeInProject implementation="boolean" default-value="true"/>
+        <validateXml implementation="boolean" default-value="false"/>
+        <outputWebXml implementation="java.io.File">${project.build.directory}/jspweb.xml</outputWebXml>
+        <injectString implementation="java.lang.String" default-value="&lt;/web-app&gt;"/>
+      </configuration>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.mojo.jspc.compiler.JspCompiler</role>
+          <field-name>jspCompiler</field-name>
+        </requirement>
+      </requirements>
+    </mojo>
+    <mojo>
+      <goal>help</goal>
+      <description>Display help information on &apos;org.codehaus.mojo.jspc:jspc-maven-plugin&apos; plugin. Call &apos;mvn jspc:help -Ddetail=true&apos; to display all details.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <implementation>org.codehaus.mojo.jspc.HelpMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>detail</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>If true, display all settable properies for each goal.</description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <detail implementation="boolean" default-value="false">${detail}</detail>
+      </configuration>
+    </mojo>
+    <mojo>
+      <goal>testCompile</goal>
+      <description>Compile test JSPs.</description>
+      <requiresDependencyResolution>test</requiresDependencyResolution>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <phase>process-classes</phase>
+      <executePhase>test-compile</executePhase>
+      <implementation>org.codehaus.mojo.jspc.TestCompileMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>classpathElements</name>
+          <type>java.util.List</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description>Project classpath.</description>
+        </parameter>
+        <parameter>
+          <name>compile</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Sets if you want to compile the JSP classes.</description>
+        </parameter>
+        <parameter>
+          <name>filtering</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Provides filtering of the generated web.xml text.</description>
+        </parameter>
+        <parameter>
+          <name>includeInProject</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Set this to false if you don&apos;t want to include the compiled JSPs
+in your web.xml nor add the generated sources to your project&apos;s
+source roots.</description>
+        </parameter>
+        <parameter>
+          <name>injectString</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The string to look for in the web.xml to replace with the web fragment
+contents
+
+If not defined, fragment will be appended before the &amp;lt;/webapp&amp;gt; tag
+which is fine for servlet 2.4 and greater. If using this parameter its
+recommanded to use Strings such as
+&amp;lt;!-- [INSERT FRAGMENT HERE] --&amp;gt;
+
+Be aware the &amp;lt; and &amp;gt; are for your pom verbatim.</description>
+        </parameter>
+        <parameter>
+          <name>inputWebXml</name>
+          <type>java.io.File</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The path and location of the original web.xml file.</description>
+        </parameter>
+        <parameter>
+          <name>javaEncoding</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Character encoding.</description>
+        </parameter>
+        <parameter>
+          <name>listErrors</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>List Errors option for JcpC.</description>
+        </parameter>
+        <parameter>
+          <name>outputWebXml</name>
+          <type>java.io.File</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The final path and file name of the web.xml.</description>
+        </parameter>
+        <parameter>
+          <name>packageName</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The package in which the jsp files will be contained.</description>
+        </parameter>
+        <parameter>
+          <name>project</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>showSuccess</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Show Success option for JcpC.</description>
+        </parameter>
+        <parameter>
+          <name>smapDumped</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Set Smap Dumped option for JcpC.</description>
+        </parameter>
+        <parameter>
+          <name>smapSupressed</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Set Smap Supressed option for JcpC.</description>
+        </parameter>
+        <parameter>
+          <name>source</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Provide source compatibility with specified release.</description>
+        </parameter>
+        <parameter>
+          <name>sources</name>
+          <type>org.apache.maven.shared.model.fileset.FileSet</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The sources of the webapp. Default is &lt;tt&gt;${basedir}/src/main/webapp&lt;/tt&gt;.</description>
+        </parameter>
+        <parameter>
+          <name>target</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Generate class files for specific VM version.</description>
+        </parameter>
+        <parameter>
+          <name>trimSpaces</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Removes the spaces from the generated JSP files.</description>
+        </parameter>
+        <parameter>
+          <name>validateXml</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Validate XML option for JcpC.</description>
+        </parameter>
+        <parameter>
+          <name>verbose</name>
+          <type>int</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Verbose level option for JcpC.</description>
+        </parameter>
+        <parameter>
+          <name>webFragmentFile</name>
+          <type>java.io.File</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The path and location to the web fragment file.</description>
+        </parameter>
+        <parameter>
+          <name>workingDirectory</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The working directory to create the generated java source files.</description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <inputWebXml implementation="java.io.File">${basedir}/src/main/webapp/WEB-INF/web.xml</inputWebXml>
+        <filtering implementation="boolean" default-value="true"/>
+        <workingDirectory implementation="java.lang.String">${project.build.directory}/jsp-source</workingDirectory>
+        <webFragmentFile implementation="java.io.File">${project.build.directory}/web-fragment.xml</webFragmentFile>
+        <showSuccess implementation="boolean" default-value="true"/>
+        <listErrors implementation="boolean" default-value="true"/>
+        <compile implementation="boolean" default-value="true"/>
+        <packageName implementation="java.lang.String" default-value="jsp"/>
+        <classpathElements implementation="java.util.List">${project.testClasspathElements}</classpathElements>
+        <smapDumped implementation="boolean" default-value="false"/>
+        <verbose implementation="int" default-value="0"/>
+        <trimSpaces implementation="boolean" default-value="true"/>
+        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
+        <smapSupressed implementation="boolean" default-value="false"/>
+        <includeInProject implementation="boolean" default-value="true"/>
+        <validateXml implementation="boolean" default-value="false"/>
+        <outputWebXml implementation="java.io.File">${project.build.directory}/jspweb.xml</outputWebXml>
+        <injectString implementation="java.lang.String" default-value="&lt;/web-app&gt;"/>
+      </configuration>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.mojo.jspc.compiler.JspCompiler</role>
+          <field-name>jspCompiler</field-name>
+        </requirement>
+      </requirements>
+    </mojo>
+  </mojos>
+  <dependencies>
+    <dependency>
+      <groupId>org.codehaus.mojo.jspc</groupId>
+      <artifactId>jspc-compiler-api</artifactId>
+      <type>jar</type>
+      <version>2.0-alpha-3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy.maven</groupId>
+      <artifactId>gmaven-mojo</artifactId>
+      <type>jar</type>
+      <version>1.0-rc-3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy.maven.runtime</groupId>
+      <artifactId>gmaven-runtime-api</artifactId>
+      <type>jar</type>
+      <version>1.0-rc-3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy.maven.feature</groupId>
+      <artifactId>gmaven-feature-api</artifactId>
+      <type>jar</type>
+      <version>1.0-rc-3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy.maven.runtime</groupId>
+      <artifactId>gmaven-runtime-default</artifactId>
+      <type>jar</type>
+      <version>1.0-rc-3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <type>jar</type>
+      <version>1.5.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy.maven.runtime</groupId>
+      <artifactId>gmaven-runtime-1.5</artifactId>
+      <type>jar</type>
+      <version>1.0-rc-3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy.maven.feature</groupId>
+      <artifactId>gmaven-feature-support</artifactId>
+      <type>jar</type>
+      <version>1.0-rc-3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy.maven.runtime</groupId>
+      <artifactId>gmaven-runtime-support</artifactId>
+      <type>jar</type>
+      <version>1.0-rc-3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy.maven</groupId>
+      <artifactId>gmaven-common</artifactId>
+      <type>jar</type>
+      <version>1.0-rc-3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+      <type>jar</type>
+      <version>1.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>com.thoughtworks.qdox</groupId>
+      <artifactId>qdox</artifactId>
+      <type>jar</type>
+      <version>1.6.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy-all-minimal</artifactId>
+      <type>jar</type>
+      <version>1.5.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.ant</groupId>
+      <artifactId>ant</artifactId>
+      <type>jar</type>
+      <version>1.7.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.ant</groupId>
+      <artifactId>ant-launcher</artifactId>
+      <type>jar</type>
+      <version>1.7.1</version>
+    </dependency>
+    <dependency>
+      <groupId>jline</groupId>
+      <artifactId>jline</artifactId>
+      <type>jar</type>
+      <version>0.9.94</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-project</artifactId>
+      <type>jar</type>
+      <version>2.0.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-settings</artifactId>
+      <type>jar</type>
+      <version>2.0.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-model</artifactId>
+      <type>jar</type>
+      <version>2.0.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-container-default</artifactId>
+      <type>jar</type>
+      <version>1.0-alpha-9</version>
+    </dependency>
+    <dependency>
+      <groupId>classworlds</groupId>
+      <artifactId>classworlds</artifactId>
+      <type>jar</type>
+      <version>1.1-alpha-2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-profile</artifactId>
+      <type>jar</type>
+      <version>2.0.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-artifact-manager</artifactId>
+      <type>jar</type>
+      <version>2.0.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-repository-metadata</artifactId>
+      <type>jar</type>
+      <version>2.0.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-artifact</artifactId>
+      <type>jar</type>
+      <version>2.0.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.wagon</groupId>
+      <artifactId>wagon-provider-api</artifactId>
+      <type>jar</type>
+      <version>1.0-alpha-6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+      <type>jar</type>
+      <version>2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.shared</groupId>
+      <artifactId>file-management</artifactId>
+      <type>jar</type>
+      <version>1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.shared</groupId>
+      <artifactId>maven-shared-io</artifactId>
+      <type>jar</type>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <type>jar</type>
+      <version>2.3</version>
+    </dependency>
+  </dependencies>
+</plugin>
