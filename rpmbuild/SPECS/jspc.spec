@@ -50,11 +50,21 @@ your WAR file. Version 2 of the JSP compilation support includes a
 pluggable JSP compiler implementation, which currently allows different
 versions of the Tomcat Jasper compiler to be used as needed.
 
+%package compilers
+Group:         Development/Libraries
+Summary:       JSPC Compilers
+Requires:      jpackage-utils
+Requires:      %{name} = %{version}-%{release}
+
+%description compilers
+%{summary}.
+
 %package compiler-tomcat6
 Group:         Development/Libraries
 Summary:       JSPC Compiler for Tomcat6
 Requires:      jpackage-utils
 Requires:      tomcat
+Requires:      tomcat-lib
 Requires:      %{name} = %{version}-%{release}
 
 %description compiler-tomcat6
@@ -66,6 +76,7 @@ Summary:       JSPC Maven Plugin
 Requires:      jpackage-utils
 Requires:      %{name} = %{version}-%{release}
 Requires:      %{name}-compiler-tomcat6 = %{version}-%{release}
+Requires:      slf4j
 
 %description -n jspc-maven-plugin
 %{summary}.
@@ -104,7 +115,6 @@ sed -i 's|<artifactId>plexus-maven-plugin</artifactId>|<artifactId>plexus-compon
 %pom_xpath_remove "pom:build/pom:extensions" pom.xml
 
 # fix up tomcat6 pom to point to TC7 refs
-sed -i 's|Tomcat 6|Tomcat 7|' jspc-compilers/jspc-compiler-tomcat6/pom.xml
 %pom_add_dep org.codehaus.gmaven.runtime:gmaven-runtime-1.8:1.4 jspc-compilers/jspc-compiler-tomcat6/pom.xml
 %pom_xpath_inject "pom:dependencies/pom:dependency[pom:artifactId[./text()='jasper']]" "
             <exclusions>
@@ -198,6 +208,9 @@ install -m 644 %{name}-compiler-api/target/%{name}-compiler-api-%{namedversion}.
 install -pm 644 %{name}-compiler-api/pom.xml %{buildroot}%{_mavenpomdir}/JPP.%{name}-%{name}-compiler-api.pom
 %add_maven_depmap JPP.%{name}-%{name}-compiler-api.pom %{name}/%{name}-compiler-api.jar
 
+install -pm 644 %{name}-compilers/pom.xml %{buildroot}%{_mavenpomdir}/JPP.%{name}-%{name}-compilers.pom
+%add_maven_depmap JPP.%{name}-%{name}-compilers.pom
+
 install -m 644 %{name}-compilers/%{name}-compiler-tomcat6/target/%{name}-compiler-tomcat6-%{namedversion}.jar \
   %{buildroot}%{_javadir}/%{name}/%{name}-compiler-tomcat6.jar
 install -pm 644 %{name}-compilers/%{name}-compiler-tomcat6/pom.xml %{buildroot}%{_mavenpomdir}/JPP.%{name}-%{name}-compiler-tomcat6.pom
@@ -215,6 +228,12 @@ cp -pr target/site/apidocs/* %{buildroot}%{_javadocdir}/%{name}
 %{_javadir}/%{name}/%{name}-compiler-api.jar
 %{_mavenpomdir}/JPP.%{name}-%{name}.pom
 %{_mavenpomdir}/JPP.%{name}-%{name}-compiler-api.pom
+%{_mavendepmapfragdir}/%{name}
+%doc LICENSE.txt
+
+%files compilers
+%dir %{_javadir}/%{name}
+%{_mavenpomdir}/JPP.%{name}-%{name}-compilers.pom
 %{_mavendepmapfragdir}/%{name}
 %doc LICENSE.txt
 
