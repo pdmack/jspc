@@ -4,7 +4,7 @@
 
 Name:          jspc
 Version:       2.0
-Release:       0.1%{dotreltag}%{?dist}
+Release:       0.2%{dotreltag}%{?dist}
 Summary:       Compile JSPs under Maven
 Group:         Development/Libraries
 License:       ASL 2.0
@@ -65,7 +65,7 @@ Summary:       JSPC Compiler for Tomcat6
 Requires:      jpackage-utils
 Requires:      tomcat
 Requires:      tomcat-lib
-Requires:      %{name} = %{version}-%{release}
+Requires:      %{name}-compilers = %{version}-%{release}
 
 %description compiler-tomcat6
 %{summary}.
@@ -74,7 +74,6 @@ Requires:      %{name} = %{version}-%{release}
 Group:         Development/Libraries
 Summary:       JSPC Maven Plugin
 Requires:      jpackage-utils
-Requires:      %{name} = %{version}-%{release}
 Requires:      %{name}-compiler-tomcat6 = %{version}-%{release}
 Requires:      slf4j
 
@@ -256,5 +255,8 @@ cp -pr target/site/apidocs/* %{buildroot}%{_javadocdir}/%{name}
 %doc LICENSE.txt
 
 %changelog
+* Tue May 07 2013 Peter MacKinnon <pmackinn@redhat.com> 2.0-0.2.alpha.3
+- Re-org sub-package dependencies
+
 * Fri Apr 05 2013 Peter MacKinnon <pmackinn@redhat.com> 2.0-0.1.alpha.3
 - Initial rpm
