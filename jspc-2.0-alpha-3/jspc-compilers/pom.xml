@@ -51,7 +51,7 @@
             <plugin>
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-component-metadata</artifactId>
-                <version>3.0</version>
+                <version>1.5.5</version>
                 <configuration>
                   <descriptors>
                     <descriptor>target/classes/META-INF/plexus/components.xml</descriptor>
