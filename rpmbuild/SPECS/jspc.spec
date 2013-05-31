@@ -4,7 +4,7 @@
 
 Name:          jspc
 Version:       2.0
-Release:       0.2%{dotreltag}%{?dist}
+Release:       0.3%{dotreltag}%{?dist}
 Summary:       Compile JSPs under Maven
 Group:         Development/Libraries
 License:       ASL 2.0
@@ -15,29 +15,33 @@ Source0:       %{name}-%{namedversion}-src-svn.tar.gz
 Source1:       jspc-mp-plugin.xml
 
 BuildRequires: java-devel
-BuildRequires: jpackage-utils
-BuildRequires: maven
+#BuildRequires: jpackage-utils
+BuildRequires: maven-local
 
 BuildRequires: apache-resource-bundles
 BuildRequires: ant
 BuildRequires: fusesource-pom
 BuildRequires: gmaven
+BuildRequires: mvn(commons-lang:commons-lang)
+#BuildRequires: mvn(org.codehaus.gmaven:gmaven-mojo)
+BuildRequires: mvn(org.apache.maven.shared:file-management)
 BuildRequires: plexus-container-default
 BuildRequires: tomcat
 
-BuildRequires: maven-compiler-plugin
 BuildRequires: maven-enforcer-plugin
-BuildRequires: maven-install-plugin
 BuildRequires: maven-invoker-plugin
-BuildRequires: maven-javadoc-plugin
 BuildRequires: maven-plugin-cobertura
 BuildRequires: maven-plugin-plugin
-BuildRequires: maven-release-plugin
 BuildRequires: maven-remote-resources-plugin
-BuildRequires: maven-surefire-plugin
+
+#BuildRequires: maven-compiler-plugin
+#BuildRequires: maven-install-plugin
+#BuildRequires: maven-javadoc-plugin
+#BuildRequires: maven-release-plugin
+#BuildRequires: maven-surefire-plugin
 
 Requires:      java
-Requires:      jpackage-utils
+#Requires:      jpackage-utils
 BuildArch:     noarch
 
 %description
@@ -53,7 +57,7 @@ versions of the Tomcat Jasper compiler to be used as needed.
 %package compilers
 Group:         Development/Libraries
 Summary:       JSPC Compilers
-Requires:      jpackage-utils
+#Requires:      jpackage-utils
 Requires:      %{name} = %{version}-%{release}
 
 %description compilers
@@ -62,7 +66,7 @@ Requires:      %{name} = %{version}-%{release}
 %package compiler-tomcat6
 Group:         Development/Libraries
 Summary:       JSPC Compiler for Tomcat6
-Requires:      jpackage-utils
+#Requires:      jpackage-utils
 Requires:      tomcat
 Requires:      tomcat-lib
 Requires:      %{name}-compilers = %{version}-%{release}
@@ -73,9 +77,12 @@ Requires:      %{name}-compilers = %{version}-%{release}
 %package -n jspc-maven-plugin
 Group:         Development/Libraries
 Summary:       JSPC Maven Plugin
-Requires:      jpackage-utils
+#Requires:      jpackage-utils
 Requires:      %{name}-compiler-tomcat6 = %{version}-%{release}
-Requires:      slf4j
+#Requires:      slf4j
+Requires:      mvn(commons-lang:commons-lang)
+Requires:      mvn(org.codehaus.gmaven:gmaven-mojo)
+Requires:      mvn(org.apache.maven.shared:file-management)
 
 %description -n jspc-maven-plugin
 %{summary}.
@@ -83,7 +90,7 @@ Requires:      slf4j
 %package javadoc
 Group:         Documentation
 Summary:       Javadoc for %{name}
-Requires:      jpackage-utils
+#Requires:      jpackage-utils
 
 %description javadoc
 This package contains javadoc for %{name}.
@@ -110,24 +117,11 @@ sed -i 's|<artifactId>plexus-maven-plugin</artifactId>|<artifactId>plexus-compon
 # no tomcat5
 %pom_disable_module jspc-compiler-tomcat5 jspc-compilers/pom.xml
 
-# dump wagon-webdav
-%pom_xpath_remove "pom:build/pom:extensions" pom.xml
-
 # fix up tomcat6 pom to point to TC7 refs
 %pom_add_dep org.codehaus.gmaven.runtime:gmaven-runtime-1.8:1.4 jspc-compilers/jspc-compiler-tomcat6/pom.xml
-%pom_xpath_inject "pom:dependencies/pom:dependency[pom:artifactId[./text()='jasper']]" "
-            <exclusions>
-              <exclusion>
-                <groupId>org.eclipse.jdt.core.compiler</groupId>
-                <artifactId>ecj</artifactId>
-              </exclusion>
-            </exclusions>
-" jspc-compilers/jspc-compiler-tomcat6/pom.xml
-# tomcat-lib package not generating JPP POMS for jasper-jdt
-%pom_xpath_inject "pom:dependencies/pom:dependency[pom:artifactId[./text()='jasper-jdt']]" "
-            <scope>system</scope>
-            <systemPath>\${tomcat.jasperjdt.local}</systemPath>
-" jspc-compilers/jspc-compiler-tomcat6/pom.xml
+# switch jasper-jdt dep to ecj dep
+%pom_remove_dep org.apache.tomcat:jasper-jdt jspc-compilers/jspc-compiler-tomcat6/pom.xml
+%pom_add_dep org.eclipse.jdt.core.compiler:ecj:3.1.1 jspc-compilers/jspc-compiler-tomcat6/pom.xml
 sed -i 's|<artifactId>jasper</artifactId>|<artifactId>tomcat-jasper</artifactId>|' jspc-compilers/jspc-compiler-tomcat6/pom.xml
 sed -i 's|<artifactId>jasper-el</artifactId>|<artifactId>tomcat-jasper-el</artifactId>|' jspc-compilers/jspc-compiler-tomcat6/pom.xml
 sed -i 's|<artifactId>jasper-jdt</artifactId>|<artifactId>tomcat-jasper-jdt</artifactId>|' jspc-compilers/jspc-compiler-tomcat6/pom.xml
@@ -180,11 +174,13 @@ sed -i 's|<artifactId>jasper-jdt</artifactId>|<artifactId>tomcat-jasper-jdt</art
                 </configuration>
 "
 
+# remove wagon-webdav
+%pom_xpath_remove "pom:build/pom:extensions"
+
 %build
 
 mvn-rpmbuild \
   -Dgmaven.runtime=1.8 \
-  -Dtomcat.jasperjdt.local=/usr/share/java/tomcat/jasper-jdt.jar \
   install javadoc:aggregate
 
 # http://jira.codehaus.org/browse/GMAVEN-68
@@ -255,6 +251,9 @@ cp -pr target/site/apidocs/* %{buildroot}%{_javadocdir}/%{name}
 %doc LICENSE.txt
 
 %changelog
+* Thu May 30 2013 Peter MacKinnon <pmackinn@redhat.com> 2.0-0.3.alpha.3
+- Updates from peer review
+
 * Tue May 07 2013 Peter MacKinnon <pmackinn@redhat.com> 2.0-0.2.alpha.3
 - Re-org sub-package dependencies
 
