@@ -4,7 +4,7 @@
 
 Name:          jspc
 Version:       2.0
-Release:       0.3%{dotreltag}%{?dist}
+Release:       0.5%{dotreltag}%{?dist}
 Summary:       Compile JSPs under Maven
 Group:         Development/Libraries
 License:       ASL 2.0
@@ -16,6 +16,7 @@ Source1:       jspc-mp-plugin.xml
 
 BuildRequires: java-devel
 #BuildRequires: jpackage-utils
+# TODO: migrate to xmvn beyond F18
 BuildRequires: maven-local
 
 BuildRequires: apache-resource-bundles
@@ -33,9 +34,9 @@ BuildRequires: maven-invoker-plugin
 BuildRequires: maven-plugin-cobertura
 BuildRequires: maven-plugin-plugin
 BuildRequires: maven-remote-resources-plugin
+BuildRequires: maven-install-plugin
 
 #BuildRequires: maven-compiler-plugin
-#BuildRequires: maven-install-plugin
 #BuildRequires: maven-javadoc-plugin
 #BuildRequires: maven-release-plugin
 #BuildRequires: maven-surefire-plugin
@@ -68,7 +69,7 @@ Group:         Development/Libraries
 Summary:       JSPC Compiler for Tomcat6
 #Requires:      jpackage-utils
 Requires:      tomcat
-Requires:      tomcat-lib
+#Requires:      tomcat-lib
 Requires:      %{name}-compilers = %{version}-%{release}
 
 %description compiler-tomcat6
@@ -251,6 +252,13 @@ cp -pr target/site/apidocs/* %{buildroot}%{_javadocdir}/%{name}
 %doc LICENSE.txt
 
 %changelog
+* Tue Jun 11 2013 Peter MacKinnon <pmackinn@redhat.com> 2.0-0.5.alpha.3
+- Removed tomcat-lib requires
+- TODO: migrate to xmvn beyond F18
+
+* Tue Jun 11 2013 Peter MacKinnon <pmackinn@redhat.com> 2.0-0.4.alpha.3
+- Reinstated missing maven-install-plugin
+
 * Thu May 30 2013 Peter MacKinnon <pmackinn@redhat.com> 2.0-0.3.alpha.3
 - Updates from peer review
 
