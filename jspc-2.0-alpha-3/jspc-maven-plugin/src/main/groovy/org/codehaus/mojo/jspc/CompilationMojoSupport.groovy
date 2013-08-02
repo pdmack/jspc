@@ -19,12 +19,10 @@
 
 package org.codehaus.mojo.jspc
 
-import org.codehaus.gmaven.mojo.GroovyMojo
-
 import org.apache.commons.lang.SystemUtils
 import org.apache.commons.lang.StringUtils
 import org.apache.commons.lang.time.StopWatch
-
+import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.project.MavenProject
 
 import org.apache.maven.shared.model.fileset.FileSet
@@ -40,7 +38,7 @@ import org.codehaus.mojo.jspc.compiler.JspCompiler
  * @version $Id: CompilationMojoSupport.groovy 6803 2008-04-21 12:04:24Z user57 $
  */
 abstract class CompilationMojoSupport
-    extends GroovyMojo
+    extends AbstractMojo
 {
     /**
      * The working directory to create the generated java source files.

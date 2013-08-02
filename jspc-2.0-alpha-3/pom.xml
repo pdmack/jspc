@@ -108,12 +108,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.codehaus.groovy.maven</groupId>
-                <artifactId>gmaven-mojo</artifactId>
-                <version>1.0-rc-3</version>
-            </dependency>
-            
-            <dependency>
                 <groupId>org.apache.maven.shared</groupId>
                 <artifactId>file-management</artifactId>
                 <version>1.2.1</version>
@@ -154,11 +148,6 @@
         
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.codehaus.gmaven</groupId>
-                    <artifactId>gmaven-plugin</artifactId>
-                    <version>1.4</version>
-                </plugin>
                 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -244,21 +233,6 @@
                 <artifactId>maven-remote-resources-plugin</artifactId>
             </plugin>
             
-            <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generateStubs</goal>
-                            <goal>compile</goal>
-                            <goal>generateTestStubs</goal>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
