@@ -4,7 +4,7 @@
 
 Name:          jspc
 Version:       2.0
-Release:       0.5%{dotreltag}%{?dist}
+Release:       0.6%{dotreltag}%{?dist}
 Summary:       Compile JSPs under Maven
 Group:         Development/Libraries
 License:       ASL 2.0
@@ -12,19 +12,17 @@ Url:           http://mojo.codehaus.org/jspc/
 # svn export https://svn.codehaus.org/mojo/tags/jspc-2.0-alpha-3 jspc
 # tar czf jspc-2.0-alpha-3-src-svn.tar.gz jspc
 Source0:       %{name}-%{namedversion}-src-svn.tar.gz
-Source1:       jspc-mp-plugin.xml
+Source1:       %{name}-mp-plugin.xml
+Patch0:        %{name}-ant-groovyc.patch
 
 BuildRequires: java-devel
-#BuildRequires: jpackage-utils
 # TODO: migrate to xmvn beyond F18
 BuildRequires: maven-local
 
 BuildRequires: apache-resource-bundles
 BuildRequires: ant
 BuildRequires: fusesource-pom
-BuildRequires: gmaven
 BuildRequires: mvn(commons-lang:commons-lang)
-#BuildRequires: mvn(org.codehaus.gmaven:gmaven-mojo)
 BuildRequires: mvn(org.apache.maven.shared:file-management)
 BuildRequires: plexus-container-default
 BuildRequires: tomcat
@@ -36,13 +34,7 @@ BuildRequires: maven-plugin-plugin
 BuildRequires: maven-remote-resources-plugin
 BuildRequires: maven-install-plugin
 
-#BuildRequires: maven-compiler-plugin
-#BuildRequires: maven-javadoc-plugin
-#BuildRequires: maven-release-plugin
-#BuildRequires: maven-surefire-plugin
-
 Requires:      java
-#Requires:      jpackage-utils
 BuildArch:     noarch
 
 %description
@@ -58,7 +50,6 @@ versions of the Tomcat Jasper compiler to be used as needed.
 %package compilers
 Group:         Development/Libraries
 Summary:       JSPC Compilers
-#Requires:      jpackage-utils
 Requires:      %{name} = %{version}-%{release}
 
 %description compilers
@@ -67,9 +58,7 @@ Requires:      %{name} = %{version}-%{release}
 %package compiler-tomcat6
 Group:         Development/Libraries
 Summary:       JSPC Compiler for Tomcat6
-#Requires:      jpackage-utils
 Requires:      tomcat
-#Requires:      tomcat-lib
 Requires:      %{name}-compilers = %{version}-%{release}
 
 %description compiler-tomcat6
@@ -78,11 +67,8 @@ Requires:      %{name}-compilers = %{version}-%{release}
 %package -n jspc-maven-plugin
 Group:         Development/Libraries
 Summary:       JSPC Maven Plugin
-#Requires:      jpackage-utils
 Requires:      %{name}-compiler-tomcat6 = %{version}-%{release}
-#Requires:      slf4j
 Requires:      mvn(commons-lang:commons-lang)
-Requires:      mvn(org.codehaus.gmaven:gmaven-mojo)
 Requires:      mvn(org.apache.maven.shared:file-management)
 
 %description -n jspc-maven-plugin
@@ -91,7 +77,6 @@ Requires:      mvn(org.apache.maven.shared:file-management)
 %package javadoc
 Group:         Documentation
 Summary:       Javadoc for %{name}
-#Requires:      jpackage-utils
 
 %description javadoc
 This package contains javadoc for %{name}.
@@ -104,13 +89,11 @@ for d in LICENSE ; do
   sed -i 's/\r//' $d.txt
 done
 
-# fix up gmaven namespace change in src
-sed -i 's|import org.codehaus.groovy.maven|import org.codehaus.gmaven|' \
+# fix up gmaven removal in src
+sed -i 's|import org.codehaus.groovy.maven.mojo.GroovyMojo|import org.apache.maven.plugin.AbstractMojo|' \
   jspc-maven-plugin/src/main/groovy/org/codehaus/mojo/jspc/CompilationMojoSupport.groovy
-
-# fix up gmaven namespace change in poms
-sed -i 's|<groupId>org.codehaus.groovy.maven</groupId>|<groupId>org.codehaus.gmaven</groupId>|' pom.xml
-sed -i 's|<groupId>org.codehaus.groovy.maven</groupId>|<groupId>org.codehaus.gmaven</groupId>|' jspc-maven-plugin/pom.xml
+sed -i 's|extends GroovyMojo|extends AbstractMojo|' \
+  jspc-maven-plugin/src/main/groovy/org/codehaus/mojo/jspc/CompilationMojoSupport.groovy
 
 # plexus-maven-plugin superceded by plexus-component-metadata
 sed -i 's|<artifactId>plexus-maven-plugin</artifactId>|<artifactId>plexus-component-metadata</artifactId>|' pom.xml
@@ -118,8 +101,6 @@ sed -i 's|<artifactId>plexus-maven-plugin</artifactId>|<artifactId>plexus-compon
 # no tomcat5
 %pom_disable_module jspc-compiler-tomcat5 jspc-compilers/pom.xml
 
-# fix up tomcat6 pom to point to TC7 refs
-%pom_add_dep org.codehaus.gmaven.runtime:gmaven-runtime-1.8:1.4 jspc-compilers/jspc-compiler-tomcat6/pom.xml
 # switch jasper-jdt dep to ecj dep
 %pom_remove_dep org.apache.tomcat:jasper-jdt jspc-compilers/jspc-compiler-tomcat6/pom.xml
 %pom_add_dep org.eclipse.jdt.core.compiler:ecj:3.1.1 jspc-compilers/jspc-compiler-tomcat6/pom.xml
@@ -151,13 +132,6 @@ sed -i 's|<artifactId>jasper-jdt</artifactId>|<artifactId>tomcat-jasper-jdt</art
                 </executions>
 "
 
-# be quiet about missing help mojo descriptors
-%pom_xpath_inject "pom:build/pom:plugins/pom:plugin[pom:artifactId[./text()='maven-plugin-plugin']]" "
-                <configuration>
-                  <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-                </configuration>
-" jspc-maven-plugin/pom.xml
-
 # fix up source, target config in compiler plugin
 %pom_remove_plugin org.apache.maven.plugins:maven-compiler-plugin pom.xml
 %pom_add_plugin org.apache.maven.plugins:maven-compiler-plugin pom.xml "
@@ -178,11 +152,18 @@ sed -i 's|<artifactId>jasper-jdt</artifactId>|<artifactId>tomcat-jasper-jdt</art
 # remove wagon-webdav
 %pom_xpath_remove "pom:build/pom:extensions"
 
+# get rid of gmaven...
+%pom_remove_dep org.codehaus.groovy.maven:gmaven-mojo pom.xml
+%pom_remove_plugin org.codehaus.groovy.maven:gmaven-plugin pom.xml
+%pom_add_dep 	org.apache.ant:ant jspc-compilers/jspc-compiler-tomcat6/pom.xml
+
+#...replace with ant groovyc task
+# have to patch due to some $ substitution problems
+%patch0 -p2
+
 %build
 
-mvn-rpmbuild \
-  -Dgmaven.runtime=1.8 \
-  install javadoc:aggregate
+mvn-rpmbuild install javadoc:aggregate
 
 # http://jira.codehaus.org/browse/GMAVEN-68
 # gmaven-runtime 1.8 doesn't generate plugin descriptor
